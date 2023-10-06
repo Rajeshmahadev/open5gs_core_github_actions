@@ -2,6 +2,8 @@ provider "aws" {
   region = "us-east-1"
 }
 
+
+
 # VPC creation
 resource "aws_vpc" "one-vpc" {
   cidr_block          = "10.3.0.0/16"
