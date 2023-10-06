@@ -1,464 +1,757 @@
-# Provider
-
 provider "aws" {
+
   region = "us-east-1"
+
 }
 
-# VPC 1
-# You can add more resources specific to each VPC here, such as subnets, security groups, and route tables.
+ 
 
-resource "aws_vpc" "vpc1" {
-  cidr_block       = "10.0.0.0/16"
-  instance_tenancy = "default"
+# VPC creation
+
+resource "aws_vpc" "one-vpc" {
+
+  cidr_block          = "10.3.0.0/16"
+
+  instance_tenancy    = "default"
+
+  enable_dns_support  = true
+
+  enable_dns_hostnames = true
+
+ 
 
   tags = {
-    Name = "open5gs-VPC1"
+
+    Name = "one-vpc"
+
   }
+
 }
 
-# VPC 2
-resource "aws_vpc" "vpc2" {
-  cidr_block       = "10.1.0.0/16"
-  instance_tenancy = "default"
+ 
+
+resource "aws_vpc" "two-vpc" {
+
+  cidr_block          = "10.4.0.0/16"
+
+  instance_tenancy    = "default"
+
+  enable_dns_support  = true
+
+  enable_dns_hostnames = true
+
+ 
 
   tags = {
-    Name = "open5gs-VPC2"
+
+    Name = "two-vpc"
+
   }
+
 }
 
-# VPC 3
-resource "aws_vpc" "vpc3" {
-  cidr_block       = "10.2.0.0/16"
-  instance_tenancy = "default"
+ 
+
+resource "aws_vpc" "three-vpc" {
+
+  cidr_block          = "10.5.0.0/16"
+
+  instance_tenancy    = "default"
+
+  enable_dns_support  = true
+
+  enable_dns_hostnames = true
+
+ 
 
   tags = {
-    Name = "open5gs-VPC3"
+
+    Name = "three-vpc"
+
   }
+
 }
 
-# Define Subnets
-resource "aws_subnet" "subnet_vpc1_1" {
-  vpc_id                  = aws_vpc.vpc1.id
-  cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-1a" # Change to your desired availability zone
+ 
+
+# Subnet creation
+
+resource "aws_subnet" "public-subnet1" {
+
+  vpc_id                  = aws_vpc.one-vpc.id
+
+  cidr_block              = "10.3.1.0/24"
+
   map_public_ip_on_launch = true
 
+  availability_zone       = "us-east-1a"
+
+ 
+
   tags = {
-    Name = "subnet_vpc1_1"
+
+    Name = "public-subnet1"
+
   }
+
 }
 
+ 
 
-resource "aws_subnet" "subnet_vpc2_1" {
-  vpc_id                  = aws_vpc.vpc2.id
-  cidr_block              = "10.1.1.0/24"
-  availability_zone       = "us-east-1b" # Change to your desired availability zone
+resource "aws_subnet" "public-subnet2" {
+
+  vpc_id                  = aws_vpc.two-vpc.id
+
+  cidr_block              = "10.4.1.0/24"
+
   map_public_ip_on_launch = true
 
+  availability_zone       = "us-east-1a"
+
+ 
+
   tags = {
-    Name = "subnet_vpc2_1"
+
+    Name = "public-subnet2"
+
   }
+
 }
 
+ 
 
-resource "aws_subnet" "subnet_vpc3_1" {
-  vpc_id                  = aws_vpc.vpc3.id
-  cidr_block              = "10.2.1.0/24"
-  availability_zone       = "us-east-1c" # Change to your desired availability zone
+resource "aws_subnet" "public-subnet3" {
+
+  vpc_id                  = aws_vpc.three-vpc.id
+
+  cidr_block              = "10.5.1.0/24"
+
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "subnet_vpc3_1"
-  }
-}
+  availability_zone       = "us-east-1a"
 
-#InternetGateway creation
-resource "aws_internet_gateway" "gw1" {
-  vpc_id = aws_vpc.vpc1.id
+ 
 
   tags = {
-    Name = "open5g-IGW-01"
+
+    Name = "public-subnet3"
+
   }
+
 }
 
-resource "aws_internet_gateway" "gw2" {
-  vpc_id = aws_vpc.vpc2.id
+ 
+
+# Internet Gateway creation
+
+resource "aws_internet_gateway" "one-igw" {
+
+  vpc_id = aws_vpc.one-vpc.id
+
+ 
 
   tags = {
-    Name = "open5g-IGW-02"
+
+    Name = "one-igw"
+
   }
+
 }
 
-resource "aws_internet_gateway" "gw3" {
-  vpc_id = aws_vpc.vpc3.id
+ 
+
+resource "aws_internet_gateway" "two-igw" {
+
+  vpc_id = aws_vpc.two-vpc.id
+
+ 
 
   tags = {
-    Name = "open5g-IGW-03"
+
+    Name = "two-igw"
+
   }
+
 }
 
-#RouteTable for public instant
+ 
 
-resource "aws_route_table" "Public-RTC1" {
-  vpc_id = aws_vpc.vpc1.id
+resource "aws_internet_gateway" "three-igw" {
+
+  vpc_id = aws_vpc.three-vpc.id
+
+ 
+
+  tags = {
+
+    Name = "three-igw"
+
+  }
+
+}
+
+ 
+
+# Route table for internet gateway
+
+resource "aws_route_table" "one_igw_rt" {
+
+  vpc_id = aws_vpc.one-vpc.id
+
+ 
 
   route {
+
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw1.id
+
+    gateway_id = aws_internet_gateway.one-igw.id
+
   }
+
+ 
 
   tags = {
-    Name = "Public-RTC-01"
+
+    Name = "one_igw_rt"
+
   }
+
 }
 
-resource "aws_route_table" "Public-RTC2" {
-  vpc_id = aws_vpc.vpc2.id
+ 
+
+resource "aws_route_table" "two_igw_rt" {
+
+  vpc_id = aws_vpc.two-vpc.id
+
+ 
 
   route {
+
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw2.id
+
+    gateway_id = aws_internet_gateway.two-igw.id
+
   }
+
+ 
 
   tags = {
-    Name = "Public-RTC-02"
+
+    Name = "two_igw_rt"
+
   }
+
 }
 
-resource "aws_route_table" "Public-RTC3" {
-  vpc_id = aws_vpc.vpc3.id
+ 
+
+resource "aws_route_table" "three_igw_rt" {
+
+  vpc_id = aws_vpc.three-vpc.id
+
+ 
 
   route {
+
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.gw3.id
+
+    gateway_id = aws_internet_gateway.three-igw.id
+
   }
+
+ 
 
   tags = {
-    Name = "Public-RTC-03"
+
+    Name = "three_igw_rt"
+
   }
+
 }
 
-#Route table association with public subnet
-resource "aws_route_table_association" "public-association1" {
-  subnet_id      = aws_subnet.subnet_vpc1_1.id
-  route_table_id = aws_route_table.Public-RTC1.id
+ 
+
+# Subnet association for internet-gateway
+
+resource "aws_route_table_association" "subnet-association-igw-1" {
+
+  subnet_id      = aws_subnet.public-subnet1.id
+
+  route_table_id = aws_route_table.one_igw_rt.id
+
 }
 
-resource "aws_route_table_association" "public-association2" {
-  subnet_id      = aws_subnet.subnet_vpc2_1.id
-  route_table_id = aws_route_table.Public-RTC2.id
+ 
+
+resource "aws_route_table_association" "subnet-association-igw-2" {
+
+  subnet_id      = aws_subnet.public-subnet2.id
+
+  route_table_id = aws_route_table.two_igw_rt.id
+
 }
 
-resource "aws_route_table_association" "public-association3" {
-  subnet_id      = aws_subnet.subnet_vpc3_1.id
-  route_table_id = aws_route_table.Public-RTC3.id
+ 
+
+resource "aws_route_table_association" "subnet-association-igw-3" {
+
+  subnet_id      = aws_subnet.public-subnet3.id
+
+  route_table_id = aws_route_table.three_igw_rt.id
+
 }
 
-#SecurityGroup Creation
+ 
 
-resource "aws_security_group" "SG1" {
-  name        = "allow_all_traffic"
-  description = "Allow all traffic"
-  vpc_id      = aws_vpc.vpc1.id
+# Public security group
+
+resource "aws_security_group" "public_sg1" {
+
+  name        = "EKS-public-sg1"
+
+  description = "Allow SSH and all traffic"
+
+  vpc_id      = aws_vpc.one-vpc.id
+
+ 
 
   ingress {
-    description = "TLS from VPC"
+
     from_port   = 22
+
     to_port     = 22
+
     protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
 
   }
 
+ 
+
   ingress {
-    description = "TLS from VPC"
+
     from_port   = 0
+
     to_port     = 0
+
     protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
 
   }
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
 
-  }
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+ 
 
-  }
   egress {
+
     from_port   = 0
+
     to_port     = 0
+
     protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
+
   }
+
+ 
 
   tags = {
-    Name = "open5gs-SG1-public"
+
+    Name = "public_sg1"
+
   }
+
 }
 
-#SecurityGroup Creation
+ 
 
-resource "aws_security_group" "SG2" {
-  name        = "allow_all_traffic"
-  description = "Allow all traffic"
-  vpc_id      = aws_vpc.vpc2.id
+resource "aws_security_group" "public_sg2" {
+
+  name        = "EKS-public-sg2"
+
+  description = "Allow SSH and all traffic"
+
+  vpc_id      = aws_vpc.two-vpc.id
+
+ 
 
   ingress {
-    description = "TLS from VPC"
+
     from_port   = 22
+
     to_port     = 22
+
     protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
 
   }
 
+ 
+
   ingress {
-    description = "TLS from VPC"
+
     from_port   = 0
+
     to_port     = 0
+
     protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
 
   }
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
 
-  }
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+ 
 
-  }
   egress {
+
     from_port   = 0
+
     to_port     = 0
+
     protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
+
   }
+
+ 
 
   tags = {
-    Name = "open5gs-SG2-public"
+
+    Name = "public_sg2"
+
   }
+
 }
 
-#SecurityGroup Creation
+ 
 
-resource "aws_security_group" "SG3" {
-  name        = "allow_all_traffic"
-  description = "Allow all traffic"
-  vpc_id      = aws_vpc.vpc3.id
+resource "aws_security_group" "public_sg3" {
+
+  name        = "EKS-public-sg3"
+
+  description = "Allow SSH and all traffic"
+
+  vpc_id      = aws_vpc.three-vpc.id
+
+ 
 
   ingress {
-    description = "TLS from VPC"
+
     from_port   = 22
+
     to_port     = 22
+
     protocol    = "tcp"
+
     cidr_blocks = ["0.0.0.0/0"]
 
   }
 
+ 
+
   ingress {
-    description = "TLS from VPC"
+
     from_port   = 0
+
     to_port     = 0
+
     protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
 
   }
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
 
-  }
-  ingress {
-    description = "TLS from VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+ 
 
-  }
   egress {
+
     from_port   = 0
+
     to_port     = 0
+
     protocol    = "-1"
+
     cidr_blocks = ["0.0.0.0/0"]
+
   }
+
+ 
 
   tags = {
-    Name = "open5gs-SG3-public"
+
+    Name = "public_sg3"
+
   }
+
 }
 
-# key pair creation
+ 
 
-resource "aws_key_pair" "tf-key-pair" {
-  key_name   = "tf-key-pair"
+# Key pair
+
+resource "aws_key_pair" "EKS_kp" {
+
+  key_name   = "EKS_kp"
+
   public_key = tls_private_key.rsa.public_key_openssh
+
 }
+
+ 
+
 resource "tls_private_key" "rsa" {
-  algorithm = "RSA"
-  rsa_bits  = 4096
+
+  algorithm   = "RSA"
+
+  rsa_bits    = 4096
+
 }
-resource "local_file" "tf-key" {
+
+ 
+
+resource "local_file" "EKS_kp" {
+
   content  = tls_private_key.rsa.private_key_pem
-  filename = "tf-key-pair"
+
+  filename = "EKS_kp"
+
 }
 
+ 
 
-#Creating EC2 instant in public subnet2
+# Public EC2 instances
 
-resource "aws_instance" "ec2-web1" {
-  ami                         = "ami-007855ac798b5175e"
-  instance_type               = "t2.medium"
-  availability_zone           = "us-east-1a"
-  key_name                    = "tf-key-pair"
-  vpc_security_group_ids      = ["${aws_security_group.SG1.id}"]
-  subnet_id                   = aws_subnet.subnet_vpc1_1.id
+resource "aws_instance" "one-ec2" {
+
+  ami           = "ami-0261755bbcb8c4a84"
+
+  instance_type = "t2.medium"
+
+  key_name      = aws_key_pair.EKS_kp.key_name
+
+  vpc_security_group_ids = [aws_security_group.public_sg1.id]
+
+  subnet_id     = aws_subnet.public-subnet1.id
+
   associate_public_ip_address = true
-  #user_data                  = file("master_node.sh")
+
+ 
 
   root_block_device {
-    volume_size = "50"
+
+    volume_size = 25
+
     volume_type = "io1"
-    iops        = "300"
+
+    iops        = 100
 
   }
+
+ 
 
   tags = {
-    Name = "master-node1"
+
+    Name = "one-ec2"
+
   }
+
 }
 
-resource "aws_instance" "ec2-web2" {
-  ami                         = "ami-007855ac798b5175e"
-  instance_type               = "t2.medium"
-  availability_zone           = "us-east-1b"
-  key_name                    = "tf-key-pair"
-  vpc_security_group_ids      = ["${aws_security_group.SG2.id}"]
-  subnet_id                   = aws_subnet.subnet_vpc2_1.id
+ 
+
+resource "aws_instance" "two-ec2" {
+
+  ami           = "ami-0261755bbcb8c4a84"
+
+  instance_type = "t2.medium"
+
+  key_name      = aws_key_pair.EKS_kp.key_name
+
+  vpc_security_group_ids = [aws_security_group.public_sg2.id]
+
+  subnet_id     = aws_subnet.public-subnet2.id
+
   associate_public_ip_address = true
-  #user_data                  = file("master_node.sh")
+
+ 
 
   root_block_device {
-    volume_size = "50"
+
+    volume_size = 25
+
     volume_type = "io1"
-    iops        = "300"
+
+    iops        = 100
 
   }
+
+ 
 
   tags = {
-    Name = "master-node2"
+
+    Name = "two-ec2"
+
   }
+
 }
 
-resource "aws_instance" "ec2-web3" {
-  ami                         = "ami-007855ac798b5175e"
-  instance_type               = "t2.medium"
-  availability_zone           = "us-east-1c"
-  key_name                    = "tf-key-pair"
-  vpc_security_group_ids      = ["${aws_security_group.SG3.id}"]
-  subnet_id                   = aws_subnet.subnet_vpc3_1.id
+ 
+
+resource "aws_instance" "three-ec2" {
+
+  ami           = "ami-0261755bbcb8c4a84"
+
+  instance_type = "t2.medium"
+
+  key_name      = aws_key_pair.EKS_kp.key_name
+
+  vpc_security_group_ids = [aws_security_group.public_sg3.id]
+
+  subnet_id     = aws_subnet.public-subnet3.id
+
   associate_public_ip_address = true
-  #user_data                  = file("master_node.sh")
+
+ 
 
   root_block_device {
-    volume_size = "50"
+
+    volume_size = 25
+
     volume_type = "io1"
-    iops        = "300"
+
+    iops        = 100
 
   }
+
+ 
 
   tags = {
-    Name = "master-node3"
+
+    Name = "three-ec2"
+
   }
+
 }
 
-resource "null_resource" "null-res-01" {
-  # Provisioner block defines when this null_resource should be created or recreated.
-  # triggers = {
-  #   instance_id = aws_instance.ec2-web1.id
-  # }
+ 
+
+# Null resource for public EC2
+
+resource "null_resource" "core_public" {
+
   connection {
+
     type        = "ssh"
-    host        = aws_instance.ec2-web1.public_ip
+
+    host        = aws_instance.one-ec2.public_ip
+
     user        = "ubuntu"
+
     private_key = tls_private_key.rsa.private_key_pem
+
   }
+
+ 
+
+ 
 
   provisioner "remote-exec" {
+
     inline = [
+
       "cloud-init status --wait",
+
+      
+
       file("${path.module}/cloud_init.sh")
+
     ]
+
   }
-  depends_on = [aws_instance.ec2-web1]
+
+ 
+
+  depends_on = [aws_instance.one-ec2]
+
 }
 
-resource "null_resource" "null-res-02" {
-  # Provisioner block defines when this null_resource should be created or recreated.
-  # triggers = {
-  #   instance_id = aws_instance.ec2-web1.id
-  # }
+ 
+
+# Null resource for public EC2
+
+resource "null_resource" "ran_public" {
+
   connection {
+
     type        = "ssh"
-    host        = aws_instance.ec2-web2.public_ip
+
+    host        = aws_instance.two-ec2.public_ip
+
     user        = "ubuntu"
+
     private_key = tls_private_key.rsa.private_key_pem
+
   }
 
+ 
+
   provisioner "remote-exec" {
+
     inline = [
+
       "cloud-init status --wait",
+
       file("${path.module}/cloud_init2.sh")
+
     ]
+
   }
-  depends_on = [aws_instance.ec2-web2]
+
+ 
+
+  depends_on = [aws_instance.two-ec2]
+
 }
 
-resource "null_resource" "null-res-03" {
-  # Provisioner block defines when this null_resource should be created or recreated.
-  # triggers = {
-  #   instance_id = aws_instance.ec2-web1.id
-  # }
+ 
+
+# Null resource for public
+
+resource "null_resource" "mon_public" {
+
   connection {
+
     type        = "ssh"
-    host        = aws_instance.ec2-web3.public_ip
+
+    host        = aws_instance.three-ec2.public_ip
+
     user        = "ubuntu"
+
     private_key = tls_private_key.rsa.private_key_pem
+
   }
+
+ 
 
   provisioner "remote-exec" {
+
     inline = [
-      "cloud-init status --wait",
+
+      "cloud-init status --wait",      
+
       file("${path.module}/cloud_init3.sh")
+
     ]
+
   }
-  depends_on = [aws_instance.ec2-web3]
+
+ 
+
+  depends_on = [aws_instance.three-ec2]
+
 }
-
-
-
-
-
-
